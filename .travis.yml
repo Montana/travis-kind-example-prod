@@ -1,0 +1,22 @@
+dist: jammy 
+
+language: go
+
+go:
+  - '1.15.x'
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: 'Kind example'
+      before_script:
+        - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        - GO111MODULE="on" go get sigs.k8s.io/kind@v0.10.0
+        - kind create cluster
+        - kubectl config use-context kind-kind
+        - kubectl create sa default
+      script:
+        - kubectl run busybox --image=busybox
+        - kubectl get pods
